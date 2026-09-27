@@ -1,0 +1,25 @@
+{
+  "id": "ebook-distribution",
+  "name": "E-book Distribution & Reader Hub",
+  "version": "1.0.0",
+  "description": "Upload multiple ebook formats (EPUB, PDF, Kindle), provide secure customer download links with device setup instructions, send free review copies, and generate offline download cards.",
+  "author": "Swiftbase Team",
+  "permissions": [
+    "storage:upload",
+    "store:orders:read",
+    "email:send",
+    "routes:public"
+  ],
+  "homepage": "https://swiftbase.io/extensions/ebook-distribution",
+  "repository": "https://github.com/Swiftbase-Dev/extension-ebook-distribution",
+  "routes": [
+    {
+      "path": "/download/:token",
+      "title": "Customer E-book Download & Device Hub"
+    },
+    {
+      "path": "/redeem",
+      "title": "Offline Card Code Redemption"
+    }
+  ]
+}
