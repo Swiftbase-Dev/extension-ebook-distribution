@@ -12,6 +12,10 @@
   ],
   "homepage": "https://swiftbase.io/extensions/ebook-distribution",
   "repository": "https://github.com/Swiftbase-Dev/extension-ebook-distribution",
+  "main": "dist/index.js",
+  "files": [
+    "dist/index.js"
+  ],
   "routes": [
     {
       "path": "/download/:token",
