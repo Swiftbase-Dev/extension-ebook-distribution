@@ -2,7 +2,7 @@
   "id": "ebook-distribution",
   "name": "E-book Distribution & Reader Hub",
   "version": "1.0.0",
-  "description": "Upload multiple ebook formats (EPUB, PDF, Kindle), provide secure customer download links with device setup instructions, send free review copies, and generate offline download cards.",
+  "description": "Upload multiple ebook formats (EPUB, PDF, Kindle), provide secure customer download links with device setup instructions, send free review copies, generate offline download cards, and redeem card codes on custom pages.",
   "author": "Swiftbase Team",
   "permissions": [
     "storage:upload",
@@ -12,18 +12,37 @@
   ],
   "homepage": "https://swiftbase.io/extensions/ebook-distribution",
   "repository": "https://github.com/Swiftbase-Dev/extension-ebook-distribution",
-  "main": "dist/index.js",
   "files": [
-    "dist/index.js"
+    "dist/admin.js",
+    "dist/redeem-widget.js",
+    "dist/download.js"
   ],
-  "routes": [
+  "adminPages": [
+    {
+      "id": "distribution",
+      "label": "E-book Distribution",
+      "icon": "share-nodes",
+      "tag": "ext-ebook-distribution",
+      "script": "dist/admin.js"
+    }
+  ],
+  "widgets": [
+    {
+      "id": "redeem-widget",
+      "label": "E-book Card Redeem",
+      "icon": "ticket",
+      "description": "Places an offline card redemption form on any page allowing instant book unlock.",
+      "tag": "ext-ebook-redeem",
+      "script": "dist/redeem-widget.js",
+      "defaultAttributes": {}
+    }
+  ],
+  "publicRoutes": [
     {
       "path": "/download/:token",
-      "title": "Customer E-book Download & Device Hub"
-    },
-    {
-      "path": "/redeem",
-      "title": "Offline Card Code Redemption"
+      "title": "Customer E-book Download & Device Hub",
+      "tag": "ext-ebook-download",
+      "script": "dist/download.js"
     }
   ]
 }
