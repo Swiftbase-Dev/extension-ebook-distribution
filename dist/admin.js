@@ -424,6 +424,47 @@
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ key: token, data: record })
         });
+
+        // Trigger transactional delivery email via extension email endpoint
+        try {
+          const downloadUrl = `${window.location.origin}/download/${token}`;
+          const bookTitle = prod?.name || "Book";
+          const emailSubject = `Your complimentary copy of "${bookTitle}" is ready`;
+          const emailHtml = `
+            <div style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; color: #1e293b; line-height: 1.6;">
+              <h2 style="color: #0f172a; font-size: 20px; font-weight: 800; margin-bottom: 8px;">Hi ${record.recipientName},</h2>
+              <p style="font-size: 14px; color: #475569; margin-top: 0;">You have received a complimentary digital review copy of <strong>${bookTitle}</strong>.</p>
+              ${record.message ? `<blockquote style="border-left: 4px solid #0284c7; padding-left: 14px; margin: 20px 0; color: #475569; font-style: italic; background: #f8fafc; padding: 12px 16px; border-radius: 4px;">"${record.message}"</blockquote>` : ''}
+              <div style="margin: 28px 0;">
+                <a href="${downloadUrl}" style="background-color: #0284c7; color: white; padding: 12px 24px; text-decoration: none; border-radius: 10px; font-weight: bold; font-size: 14px; display: inline-block;">
+                  Download Your E-book &rarr;
+                </a>
+              </div>
+              <p style="font-size: 12px; color: #94a3b8; border-top: 1px solid #e2e8f0; padding-top: 16px;">
+                Available in EPUB, Kindle, and PDF formats with step-by-step reading instructions for your devices.
+              </p>
+            </div>
+          `;
+
+          const emailRes = await fetch(`${this.apiBase}/email`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              to: record.recipientEmail,
+              subject: emailSubject,
+              htmlBody: emailHtml,
+              textBody: `Hi ${record.recipientName},\n\nYou have received a complimentary copy of "${bookTitle}". Download it here: ${downloadUrl}\n\n${record.message || ""}`
+            })
+          });
+
+          if (!emailRes.ok) {
+            const errData = await emailRes.json().catch(() => ({}));
+            console.warn("Email dispatch notice:", errData.message || emailRes.statusText);
+          }
+        } catch (mailErr) {
+          console.error("Failed to dispatch recipient email:", mailErr);
+        }
+
         this.sendingFreeCopy = false;
         await this.loadFreeCopies();
         this.render();
