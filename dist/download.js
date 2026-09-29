@@ -38,16 +38,20 @@
         let rec = null;
         const copyRes = await fetch(`${this.apiBase}/data/free-copies?key=${this.token}`);
         if (copyRes.ok) {
-          const list = await copyRes.json();
-          if (list && list[0]) rec = list[0].data;
+          const resData = await copyRes.json();
+          rec = Array.isArray(resData) ? resData[0]?.data : (resData?.data || resData);
         }
 
         if (!rec) {
           const cardRes = await fetch(`${this.apiBase}/data/cards`);
           if (cardRes.ok) {
             const list = await cardRes.json();
-            const found = list.find(x => (x.data && (x.data.token === this.token || x.data.code === this.token)));
-            if (found) rec = found.data;
+            const items = Array.isArray(list) ? list : (list ? [list] : []);
+            const found = items.find(x => {
+              const d = x.data || x;
+              return d && (d.token === this.token || d.code === this.token);
+            });
+            if (found) rec = found.data || found;
           }
         }
 
@@ -66,7 +70,13 @@
           if (pRes && pRes.ok) product = await pRes.json();
           if (fRes && fRes.ok) {
             const fList = await fRes.json();
-            files = fList.map(x => x.data || x);
+            if (Array.isArray(fList)) {
+              files = fList.map(x => x.data || x);
+            } else if (fList && fList.data) {
+              files = Array.isArray(fList.data) ? fList.data : (fList.data.files || [fList.data]);
+            } else if (fList) {
+              files = Array.isArray(fList.files) ? fList.files : [fList];
+            }
           }
         }
 

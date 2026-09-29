@@ -53,13 +53,25 @@
       try {
         const res = await fetch(`${this.apiBase}/data/files?key=${this.selectedProductId}`);
         if (res.ok) {
-          const recs = await res.json();
-          this.ebookFiles = recs.map(r => r.data || r);
+          const resData = await res.json();
+          let files = [];
+          if (Array.isArray(resData)) {
+            files = resData.map(r => r.data || r);
+          } else if (resData && resData.data) {
+            files = Array.isArray(resData.data) ? resData.data : (resData.data.files || [resData.data]);
+          } else if (resData) {
+            files = Array.isArray(resData.files) ? resData.files : [resData];
+          }
+          this.ebookFiles = files.filter(Boolean);
+        } else {
+          this.ebookFiles = [];
         }
       } catch (err) {
         console.error("Load files failed:", err);
+        this.ebookFiles = [];
       }
     }
+
 
     async loadFreeCopies() {
       try {
@@ -346,7 +358,7 @@
         const reader = new FileReader();
         reader.onload = async (evt) => {
           const fileId = `file_${Date.now()}`;
-          const record = {
+          const newRecord = {
             id: fileId,
             productId: this.selectedProductId,
             format: this.uploadFormat,
@@ -354,10 +366,14 @@
             fileSizeBytes: file.size,
             uploadedAt: new Date().toISOString()
           };
+          // Filter out any existing file with the same format and append the new one
+          const updatedFiles = (this.ebookFiles || []).filter(f => f.format !== this.uploadFormat);
+          updatedFiles.push(newRecord);
+
           await fetch(`${this.apiBase}/data/files`, {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ key: this.selectedProductId, data: record })
+            body: JSON.stringify({ key: this.selectedProductId, data: updatedFiles })
           });
           this.uploadingFile = false;
           await this.loadEbookFiles();
@@ -370,7 +386,16 @@
         btn.addEventListener("click", async (e) => {
           if (!confirm("Delete this file format?")) return;
           const id = e.currentTarget.dataset.id;
-          await fetch(`${this.apiBase}/data/files?key=${this.selectedProductId}`, { method: "DELETE" });
+          const updatedFiles = (this.ebookFiles || []).filter(f => f.id !== id);
+          if (updatedFiles.length > 0) {
+            await fetch(`${this.apiBase}/data/files`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ key: this.selectedProductId, data: updatedFiles })
+            });
+          } else {
+            await fetch(`${this.apiBase}/data/files?key=${this.selectedProductId}`, { method: "DELETE" });
+          }
           await this.loadEbookFiles();
           this.render();
         });

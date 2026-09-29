@@ -118,8 +118,15 @@
         try {
           const res = await fetch(`${this.apiBase}/data/cards?key=${encodeURIComponent(code)}`);
           if (!res.ok) throw new Error("Could not verify card code.");
-          const recs = await res.json();
-          const card = recs && recs[0]?.data;
+          const resData = await res.json();
+          let card = null;
+          if (Array.isArray(resData)) {
+            card = resData[0]?.data || resData[0];
+          } else if (resData && resData.data) {
+            card = resData.data;
+          } else if (resData) {
+            card = resData;
+          }
           if (!card) {
             throw new Error("Invalid or unassigned code. Please check and try again.");
           }
