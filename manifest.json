@@ -1,7 +1,7 @@
 {
   "id": "ebook-distribution",
   "name": "E-book Distribution & Reader Hub",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Upload multiple ebook formats (EPUB, PDF, Kindle), provide secure customer download links with device setup instructions, send free review copies, generate offline download cards, and redeem card codes on custom pages.",
   "author": "Swiftbase Team",
   "permissions": [

@@ -403,18 +403,24 @@
 
       this.querySelector("#form-free-copy")?.addEventListener("submit", async (e) => {
         e.preventDefault();
+        const selectedProdId = this.querySelector("#select-copy-product")?.value;
+        const recipientName = this.querySelector("#input-copy-name")?.value || "";
+        const recipientEmail = this.querySelector("#input-copy-email")?.value || "";
+        const message = this.querySelector("#input-copy-msg")?.value || "";
+
         this.sendingFreeCopy = true;
         this.render();
-        const prod = this.products.find(p => p.id === this.querySelector("#select-copy-product").value);
+
+        const prod = this.products.find(p => p.id === selectedProdId);
         const token = "d_" + Math.random().toString(36).substring(2, 12);
         const record = {
           id: `copy_${Date.now()}`,
           token,
           productId: prod?.id,
           productTitle: prod?.name || "Book",
-          recipientName: this.querySelector("#input-copy-name").value,
-          recipientEmail: this.querySelector("#input-copy-email").value,
-          message: this.querySelector("#input-copy-msg").value,
+          recipientName,
+          recipientEmail,
+          message,
           downloadCount: 0,
           maxDownloads: 5,
           createdAt: new Date().toISOString()
@@ -472,12 +478,13 @@
 
       this.querySelector("#form-gen-cards")?.addEventListener("submit", async (e) => {
         e.preventDefault();
+        const prodId = this.querySelector("#select-card-prod")?.value;
+        const count = parseInt(this.querySelector("#input-card-count")?.value, 10) || 5;
+        const prefix = (this.querySelector("#input-card-prefix")?.value || "READ").toUpperCase();
+
         this.generatingCards = true;
         this.render();
-        const prodId = this.querySelector("#select-card-prod").value;
         const prod = this.products.find(p => p.id === prodId);
-        const count = parseInt(this.querySelector("#input-card-count").value, 10) || 5;
-        const prefix = (this.querySelector("#input-card-prefix").value || "READ").toUpperCase();
 
         for (let i = 0; i < count; i++) {
           const code = `${prefix}-${Math.random().toString(36).substring(2, 6).toUpperCase()}-${Math.random().toString(36).substring(2, 6).toUpperCase()}`;
